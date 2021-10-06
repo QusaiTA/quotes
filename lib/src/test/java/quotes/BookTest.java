@@ -8,10 +8,10 @@ import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,21 +25,49 @@ class BookTest {
      public void testConverter() throws FileNotFoundException {
 
          Gson gson = new Gson();
-         Reader reader = new FileReader("C:\\Users\\STUDENT\\quotes\\recentquotes.json");
+         FileReader reader = new FileReader("C:\\Users\\STUDENT\\quotes\\recentquotes.json");
+         BufferedReader bufferedReader = new BufferedReader(reader);
+
+         assertNotNull(String.valueOf(bufferedReader));
+
+     }
+
+     @Test
+     @DisplayName("API Converter Test")
+     public void testAPIConverter() throws IOException {
+
+         String URL = "http://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en";
+         HttpURLConnection httpURLConnection = (HttpURLConnection) new URL(URL).openConnection();
+         httpURLConnection.setRequestMethod("GET");
+
+         int response = 0;
+         try {
+             response= httpURLConnection.getResponseCode();
+         } catch (IOException exception){
+             httpURLConnection.disconnect();
+         }
+         if(response == HttpURLConnection.HTTP_OK) {
+             InputStreamReader inputStreamReader = new InputStreamReader(httpURLConnection.getInputStream());
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+             String data = bufferedReader.readLine();
+             bufferedReader.close();
+             Gson gson = new Gson();
+             ApiQuotes apiQuotes = gson.fromJson(data, ApiQuotes.class);
+             String getAuther = apiQuotes.getAuthor();
+             String getQuote = apiQuotes.getText();
 
 
+             Book quotesFromAPI = new Book(getAuther, getQuote);
+             Writer writer = new FileWriter("C:\\Users\\STUDENT\\quotes\\recentquotes.json", true);
+             gson.toJson(quotesFromAPI, writer);
+             System.out.println(quotesFromAPI);
 
-         Type listType = new TypeToken<ArrayList<Book>>(){}.getType();
+             String expectedResult ="Book{author='"+getAuther+"', text='"+getQuote+"'}";
+             writer.close();
 
+             assertEquals(expectedResult,quotesFromAPI.toString());
 
-         List<Book> bookList = gson.fromJson(reader,listType);
-
-
-         Random random = new Random();
-         int books = random.nextInt(bookList.size());
-         String randomBook = bookList.get(books).toString();
-
-         assertEquals(randomBook,bookList.get(books).toString());
+         }
 
      }
 
