@@ -57,26 +57,16 @@ public class Main {
 
             else {
 
-//                Gson gson = new Gson();
-//                JsonReader reader = new JsonReader(new FileReader("recentquotes.json"));
-//                // credit to stack over flow <3;
-//                Type listType = new TypeToken<ArrayList<Book>>(){}.getType();
-//                List<Book> bookList =  gson.fromJson(reader,listType);
-//                Random random = new Random();
-//                int books = random.nextInt(bookList.size());
-//                System.out.println("Local Author file => " +bookList.get(books).getAuthor());
-//                System.out.println("Local Quotes file => " +bookList.get(books).getText());
                 Gson gson = new Gson();
-                JsonReader reader = new JsonReader(new FileReader("../quotes/recentquotes.json"));
-
-                Type jsonCasting = new TypeToken<List<Book>>() {}.getType();
-
-                List<Book> jsonList = gson.fromJson(reader, jsonCasting);
-
+                JsonReader reader = new JsonReader(new FileReader("recentquotes.json"));
+                // credit to stack over flow <3;
+                Type listType = new TypeToken<ArrayList<Book>>(){}.getType();
+                List<Book> bookList =  gson.fromJson(reader,listType);
                 Random random = new Random();
-                int randoms = random.nextInt(jsonList.size());
+                int books = random.nextInt(bookList.size());
+                System.out.println("Local Author file => " +bookList.get(books).getAuthor());
+                System.out.println("Local Quotes file => " +bookList.get(books).getText());
 
-                System.out.println(jsonList.get(randoms).toString());
             }
 
 
